@@ -7,7 +7,7 @@ import { EmojiCategoryData } from './EmojiCategory';
 export const emojiCategories: EmojiCategoryData[] = [
   {
     id: 'recent',
-    icon: <Clock className="h-4 w-4" />,
+    icon: React.createElement(Clock, { className: "h-4 w-4" }),
     emojis: ['👍', '😊', '❤️', '😢', '😎', '😂', '😍', '🤡', '👑']
   },
   {
