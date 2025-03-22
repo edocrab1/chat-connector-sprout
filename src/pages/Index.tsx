@@ -4,77 +4,189 @@ import { ChatContainer, MessageProps } from '@/components/Chat';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Code } from 'lucide-react';
+import { Code, Search, Menu } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
-const demoMessages: MessageProps[] = [
+// Generate some dummy users for the group chat
+const users = [
   {
-    id: '1',
-    content: 'Hi there! How can I help you today?',
-    sender: 'bot',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60),
-    avatar: 'https://ui-avatars.com/api/?name=AI+Assistant&background=0D8ABC&color=fff',
+    id: 'user-1',
+    username: 'Alex',
+    avatar: 'https://ui-avatars.com/api/?name=Alex&background=5865F2&color=fff',
   },
   {
-    id: '2',
-    content: 'I\'m looking for information about your chat component.',
-    sender: 'user',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    avatar: 'https://ui-avatars.com/api/?name=User&background=8c8c8c&color=fff',
+    id: 'user-2',
+    username: 'Maria',
+    avatar: 'https://ui-avatars.com/api/?name=Maria&background=ED4245&color=fff',
+  },
+  {
+    id: 'user-3',
+    username: 'PoocoinWhale',
+    avatar: 'https://ui-avatars.com/api/?name=PW&background=FEE75C&color=000',
+  },
+  {
+    id: 'user-4',
+    username: 'Jase',
+    avatar: 'https://ui-avatars.com/api/?name=Jase&background=57F287&color=fff',
+  },
+  {
+    id: 'user-5',
+    username: 'LT24756',
+    avatar: 'https://ui-avatars.com/api/?name=LT&background=EB459E&color=fff',
+  },
+  {
+    id: 'user-6',
+    username: 'ABH',
+    avatar: 'https://ui-avatars.com/api/?name=ABH&background=F57C00&color=fff',
+  },
+  {
+    id: 'user-7',
+    username: 'You',
+    avatar: 'https://ui-avatars.com/api/?name=You&background=8c8c8c&color=fff',
+  },
+];
+
+// Create Telegram-style group chat messages
+const telegramStyleMessages: MessageProps[] = [
+  {
+    id: '1',
+    content: "That's was the screenshot I was sharing on X last night",
+    sender: 'user-1',
+    username: 'Alex',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
+    avatar: users[0].avatar,
     status: 'read',
   },
   {
+    id: '2',
+    content: "Nice I've never touched mine lmao",
+    sender: 'user-3',
+    username: 'PoocoinWhale',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4),
+    avatar: users[2].avatar,
+  },
+  {
     id: '3',
-    content: 'Of course! Our Chat component is designed to be easily integrated into any Next.js application. It features smooth animations, typing indicators, read receipts, and a responsive design.',
-    sender: 'bot',
-    timestamp: new Date(Date.now() - 1000 * 60 * 29),
-    avatar: 'https://ui-avatars.com/api/?name=AI+Assistant&background=0D8ABC&color=fff',
+    content: "I've bought loads more, so cheap and if KAS goes off, it'll do well",
+    sender: 'user-4',
+    username: 'Jase',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3),
+    avatar: users[3].avatar,
+    reactions: [
+      { emoji: '👍', count: 2 }
+    ]
+  },
+  {
+    id: '4',
+    content: "I have enough 😂",
+    sender: 'user-6',
+    username: 'ABH',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+    avatar: users[5].avatar,
+    replyTo: {
+      id: '3',
+      content: "I've bought loads more, so cheap and if KAS goes off, it'll do well",
+      username: 'Jase'
+    }
+  },
+  {
+    id: '5',
+    content: "You can never have enough! 😄",
+    sender: 'user-1',
+    username: 'Alex',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1),
+    avatar: users[0].avatar,
+    reactions: [
+      { emoji: '🔥', count: 1 }
+    ]
+  },
+  {
+    id: '6',
+    content: "Hard to follow Cradle AMA. Is the game ready? Seems like the most important thing for them to do is release the game",
+    sender: 'user-5',
+    username: 'LT24756',
+    timestamp: new Date(Date.now() - 1000 * 60 * 30),
+    avatar: users[4].avatar,
+  },
+  {
+    id: '7',
+    content: "No, release streamble",
+    sender: 'user-2',
+    username: 'Maria',
+    timestamp: new Date(Date.now() - 1000 * 60 * 20),
+    avatar: users[1].avatar,
+    replyTo: {
+      id: '6',
+      content: "Hard to follow Cradle AMA. Is the game ready?",
+      username: 'LT24756'
+    }
   },
 ];
 
 const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState<MessageProps[]>(demoMessages);
+  const [typingUser, setTypingUser] = useState(users[1]);
+  const [messages, setMessages] = useState<MessageProps[]>(telegramStyleMessages);
+  const currentUser = users[6]; // "You"
 
   // Handle new message from user
   const handleSendMessage = (message: string) => {
-    // Start typing effect
-    setIsTyping(true);
+    const newMessage: MessageProps = {
+      id: uuidv4(),
+      content: message,
+      sender: currentUser.id,
+      username: currentUser.username,
+      timestamp: new Date(),
+      avatar: currentUser.avatar,
+      status: 'sent',
+      isNew: true,
+    };
     
-    // Simulate a response after a delay
+    setMessages(prev => [...prev, newMessage]);
+    
+    // Simulate typing response after a delay
     setTimeout(() => {
-      setIsTyping(false);
+      const respondingUser = users[Math.floor(Math.random() * (users.length - 1))];
+      setTypingUser(respondingUser);
+      setIsTyping(true);
       
-      // Add bot response
-      const newMessage: MessageProps = {
-        id: `bot-${Date.now()}`,
-        content: getAutoResponse(message),
-        sender: 'bot',
-        timestamp: new Date(),
-        avatar: 'https://ui-avatars.com/api/?name=AI+Assistant&background=0D8ABC&color=fff',
-        isNew: true,
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
-    }, 1500);
+      // Simulate a response after a delay
+      setTimeout(() => {
+        setIsTyping(false);
+        
+        // Add response
+        const responseMessage: MessageProps = {
+          id: uuidv4(),
+          content: getAutoResponse(message, respondingUser.username),
+          sender: respondingUser.id,
+          username: respondingUser.username,
+          timestamp: new Date(),
+          avatar: respondingUser.avatar,
+          isNew: true,
+        };
+        
+        setMessages(prev => [...prev, responseMessage]);
+      }, 2000 + Math.random() * 2000);
+    }, 1000);
   };
 
   // Simple auto-response function
-  const getAutoResponse = (message: string): string => {
+  const getAutoResponse = (message: string, username: string): string => {
     const lowercaseMsg = message.toLowerCase();
+    const responses = [
+      `Yeah, I agree with what you're saying about ${lowercaseMsg.split(' ').slice(-3).join(' ')}`,
+      `Not sure I follow. Can you explain more?`,
+      `I'm with ${username} on this one!`,
+      `Interesting point. Have you considered the alternative?`,
+      `Let's discuss this more later`,
+      `👍 Good point`,
+      `That's exactly what I was thinking`,
+      `I have a different perspective on that`,
+      `Thanks for sharing that!`,
+      `Let me think about that for a bit...`,
+    ];
     
-    if (lowercaseMsg.includes('hello') || lowercaseMsg.includes('hi')) {
-      return 'Hello! How can I assist you with the chat component today?';
-    }
-    
-    if (lowercaseMsg.includes('feature') || lowercaseMsg.includes('can it do')) {
-      return 'This chat component includes features like typing indicators, read receipts, message status updates, smooth animations, and responsive design. It\'s also customizable and easy to integrate!';
-    }
-    
-    if (lowercaseMsg.includes('integrate') || lowercaseMsg.includes('next.js') || lowercaseMsg.includes('use')) {
-      return 'To integrate this component into your Next.js app, simply import the ChatContainer component and customize it with your props. Check the Integration tab for code examples!';
-    }
-    
-    return "Thank you for your message! This is a demo of the chat component. You can customize responses and behaviors when you integrate it into your own application.";
+    return responses[Math.floor(Math.random() * responses.length)];
   };
 
   const integrationCode = `// Install via npm
@@ -84,20 +196,29 @@ npm install chat-component
 import { ChatContainer } from 'chat-component';
 
 // Use in your component
-export default function MyChat() {
+export default function GroupChat() {
+  const currentUser = {
+    id: 'user-123',
+    username: 'CurrentUser',
+    avatar: '/user-avatar.png'
+  };
+
   const handleSendMessage = (message) => {
-    // Handle sending message to your backend
-    console.log('Sending message:', message);
+    // Send message to your backend
+    api.sendMessage(currentUser.id, message);
   };
 
   return (
     <ChatContainer
-      initialMessages={[]}
-      userAvatar="/user-avatar.png"
-      botAvatar="/bot-avatar.png"
+      initialMessages={messages}
+      currentUser={currentUser}
       onSendMessage={handleSendMessage}
-      isTyping={false}
+      isTyping={isTyping}
+      typingUser="Maria"
+      typingAvatar="/maria-avatar.png"
       height="600px"
+      placeholder="Message"
+      headerComponent={<GroupChatHeader name="Crypto Talk" members={42} />}
     />
   );
 }`;
@@ -106,7 +227,7 @@ export default function MyChat() {
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight mb-3">Chat Component</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-3">Telegram-style Group Chat</h1>
           <p className="text-lg text-muted-foreground">
             A beautiful, responsive chat component for Next.js applications
           </p>
@@ -116,32 +237,32 @@ export default function MyChat() {
           {/* Chat Demo */}
           <div className="lg:col-span-7">
             <Card className="overflow-hidden border shadow-sm">
-              <CardHeader className="p-4 bg-muted/20">
-                <CardTitle className="text-xl">Live Demo</CardTitle>
-                <CardDescription>
-                  Try sending a message to see the component in action
-                </CardDescription>
+              <CardHeader className="p-3 bg-blue-500/90 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Menu className="w-5 h-5" />
+                    <div>
+                      <CardTitle className="text-lg font-medium">Crypto Talk</CardTitle>
+                      <CardDescription className="text-blue-100 text-xs">
+                        42 members, 12 online
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Search className="w-5 h-5" />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <ChatContainer
                   initialMessages={messages}
-                  userAvatar="https://ui-avatars.com/api/?name=User&background=8c8c8c&color=fff"
-                  botAvatar="https://ui-avatars.com/api/?name=AI+Assistant&background=0D8ABC&color=fff"
+                  currentUser={currentUser}
                   onSendMessage={handleSendMessage}
                   isTyping={isTyping}
+                  typingUser={typingUser.username}
+                  typingAvatar={typingUser.avatar}
                   height="500px"
-                  placeholder="Send a message to try it out..."
-                  headerComponent={
-                    <div className="p-3 flex items-center">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                      <span className="font-medium">Chat Assistant</span>
-                    </div>
-                  }
+                  placeholder="Message"
                 />
               </CardContent>
-              <CardFooter className="p-4 bg-muted/10 text-sm text-muted-foreground">
-                Features: typing indicators, read receipts, message status
-              </CardFooter>
             </Card>
           </div>
 
@@ -156,40 +277,40 @@ export default function MyChat() {
               <TabsContent value="features">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Key Features</CardTitle>
+                    <CardTitle>Telegram-Style Features</CardTitle>
                     <CardDescription>
                       What makes this chat component special
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-1">
-                      <h3 className="font-medium">Beautiful Animations</h3>
+                      <h3 className="font-medium">Group Chat Support</h3>
                       <p className="text-sm text-muted-foreground">
-                        Smooth entrance animations and transitions for messages
+                        Multiple users with distinct identities and avatars
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <h3 className="font-medium">Read Receipts</h3>
+                      <h3 className="font-medium">Message Replies</h3>
                       <p className="text-sm text-muted-foreground">
-                        Visual indicators for sent, delivered, and read messages
+                        Reply to specific messages in the conversation
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Reactions</h3>
+                      <p className="text-sm text-muted-foreground">
+                        React to messages with emojis
                       </p>
                     </div>
                     <div className="space-y-1">
                       <h3 className="font-medium">Typing Indicators</h3>
                       <p className="text-sm text-muted-foreground">
-                        Shows when the other person is typing a message
+                        Shows when other users are typing
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <h3 className="font-medium">Responsive Design</h3>
+                      <h3 className="font-medium">Date Separators</h3>
                       <p className="text-sm text-muted-foreground">
-                        Works beautifully on all screen sizes
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="font-medium">Easy Integration</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Simple to integrate into any Next.js application
+                        Messages are grouped by date
                       </p>
                     </div>
                   </CardContent>

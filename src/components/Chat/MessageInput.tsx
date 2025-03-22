@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, PaperclipIcon } from 'lucide-react';
+import { Send, Paperclip, Smile, Mic, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MessageInputProps {
@@ -13,7 +13,7 @@ interface MessageInputProps {
 const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
   disabled = false,
-  placeholder = 'Type a message...',
+  placeholder = 'Message',
   className,
 }) => {
   const [message, setMessage] = useState('');
@@ -58,13 +58,23 @@ const MessageInput: React.FC<MessageInputProps> = ({
         className
       )}
     >
-      <button
-        type="button"
-        className="p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-        disabled={disabled}
-      >
-        <PaperclipIcon className="w-5 h-5" />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          disabled={disabled}
+        >
+          <Paperclip className="w-5 h-5" />
+        </button>
+        
+        <button
+          type="button"
+          className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          disabled={disabled}
+        >
+          <Image className="w-5 h-5" />
+        </button>
+      </div>
       
       <div className="relative flex-1 overflow-hidden">
         <textarea
@@ -82,18 +92,38 @@ const MessageInput: React.FC<MessageInputProps> = ({
         />
       </div>
       
-      <button
-        type="submit"
-        disabled={!message.trim() || disabled}
-        className={cn(
-          "p-2 rounded-full transition-all",
-          message.trim() && !disabled 
-            ? "bg-primary text-primary-foreground" 
-            : "bg-muted text-muted-foreground"
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          disabled={disabled}
+        >
+          <Smile className="w-5 h-5" />
+        </button>
+        
+        {!message.trim() ? (
+          <button
+            type="button"
+            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            disabled={disabled}
+          >
+            <Mic className="w-5 h-5" />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!message.trim() || disabled}
+            className={cn(
+              "p-2 rounded-full transition-all",
+              message.trim() && !disabled 
+                ? "bg-blue-500 text-white" 
+                : "bg-muted text-muted-foreground"
+            )}
+          >
+            <Send className="w-5 h-5" />
+          </button>
         )}
-      >
-        <Send className="w-5 h-5" />
-      </button>
+      </div>
     </form>
   );
 };

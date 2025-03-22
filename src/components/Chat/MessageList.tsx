@@ -22,10 +22,34 @@ const MessageList: React.FC<MessageListProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  // Group messages by date
+  const groupMessagesByDate = () => {
+    const groups: { date: string; messages: MessageProps[] }[] = [];
+    let currentDate = '';
+    
+    messages.forEach(message => {
+      const messageDate = new Date(message.timestamp).toLocaleDateString();
+      
+      if (messageDate !== currentDate) {
+        currentDate = messageDate;
+        groups.push({
+          date: messageDate,
+          messages: [message]
+        });
+      } else {
+        groups[groups.length - 1].messages.push(message);
+      }
+    });
+    
+    return groups;
+  };
+
+  const messageGroups = groupMessagesByDate();
+
   return (
     <div 
       className={cn(
-        'flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent',
+        'flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent',
         className
       )}
     >
@@ -35,14 +59,28 @@ const MessageList: React.FC<MessageListProps> = ({
         </div>
       ) : (
         <>
-          {messages.map((message) => (
-            <Message key={message.id} {...message} />
+          {messageGroups.map((group, groupIndex) => (
+            <div key={groupIndex} className="space-y-1">
+              <div className="flex justify-center mb-3 mt-3">
+                <div className="bg-muted/50 text-muted-foreground text-xs px-2 py-1 rounded-md">
+                  {new Date(group.date).toLocaleDateString(undefined, { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: new Date().getFullYear() !== new Date(group.date).getFullYear() ? 'numeric' : undefined
+                  })}
+                </div>
+              </div>
+              
+              {group.messages.map((message) => (
+                <Message key={message.id} {...message} />
+              ))}
+            </div>
           ))}
         </>
       )}
       
       {isTyping && (
-        <div className="flex items-start">
+        <div className="flex items-start mt-1">
           <TypingIndicator />
         </div>
       )}

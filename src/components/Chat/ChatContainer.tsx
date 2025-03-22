@@ -13,12 +13,19 @@ export interface ChatContainerProps {
   onSendMessage?: (message: string) => void;
   onReceiveMessage?: (message: MessageProps) => void;
   isTyping?: boolean;
+  typingUser?: string;
+  typingAvatar?: string;
   height?: string;
   className?: string;
   headerComponent?: React.ReactNode;
   footerComponent?: React.ReactNode;
   placeholder?: string;
   disabled?: boolean;
+  currentUser?: {
+    id: string;
+    username: string;
+    avatar?: string;
+  };
 }
 
 const ChatContainer: React.FC<ChatContainerProps> = ({
@@ -28,12 +35,15 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   onSendMessage,
   onReceiveMessage,
   isTyping = false,
+  typingUser = "User",
+  typingAvatar,
   height = '500px',
   className,
   headerComponent,
   footerComponent,
   placeholder,
   disabled = false,
+  currentUser = { id: 'user', username: 'You' },
 }) => {
   const [messages, setMessages] = useState<MessageProps[]>(initialMessages);
 
@@ -44,9 +54,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     const newMessage: MessageProps = {
       id: uuidv4(),
       content,
-      sender: 'user',
+      sender: currentUser.id,
+      username: currentUser.username,
       timestamp: new Date(),
-      avatar: userAvatar,
+      avatar: currentUser.avatar || userAvatar,
       status: 'sent',
       isNew: true,
     };
@@ -57,11 +68,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     if (onSendMessage) {
       onSendMessage(content);
     }
-  }, [onSendMessage, userAvatar]);
+  }, [onSendMessage, userAvatar, currentUser]);
 
   // Update message status (for demo purposes)
   useEffect(() => {
-    const lastUserMessage = [...messages].reverse().find(m => m.sender === 'user' && m.status === 'sent');
+    const lastUserMessage = [...messages].reverse().find(m => m.sender === currentUser.id && m.status === 'sent');
     
     if (lastUserMessage) {
       const deliveredTimeoutId = setTimeout(() => {
@@ -84,26 +95,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       
       return () => clearTimeout(deliveredTimeoutId);
     }
-  }, [messages]);
-
-  // Example of how to add a bot response - for demo purposes
-  const addBotMessage = useCallback((content: string) => {
-    const newMessage: MessageProps = {
-      id: uuidv4(),
-      content,
-      sender: 'bot',
-      timestamp: new Date(),
-      avatar: botAvatar,
-      isNew: true,
-    };
-    
-    setMessages((prev) => [...prev, newMessage]);
-    
-    // Call the external handler if provided
-    if (onReceiveMessage) {
-      onReceiveMessage(newMessage);
-    }
-  }, [botAvatar, onReceiveMessage]);
+  }, [messages, currentUser.id]);
 
   return (
     <div 
