@@ -67,12 +67,14 @@ interface EmojiPickerProps {
   onEmojiSelect: (emoji: string) => void;
   triggerClassName?: string;
   contentClassName?: string;
+  disabled?: boolean;
 }
 
 const EmojiPicker: React.FC<EmojiPickerProps> = ({
   onEmojiSelect,
   triggerClassName,
   contentClassName,
+  disabled = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -92,6 +94,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
           type="button" 
           variant="ghost" 
           size="icon"
+          disabled={disabled}
           className={cn(
             "p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
             triggerClassName
