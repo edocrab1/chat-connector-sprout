@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -106,6 +105,17 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @layer components {
   .glass-panel {
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
@@ -125,5 +135,29 @@
   
   .bot-message {
     @apply bg-chat-bot-bubble text-chat-bot-text mr-auto message-bubble;
+  }
+
+  /* Animation for typing indicator dots */
+  @keyframes typing-dot {
+    0%, 60%, 100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-4px);
+    }
+  }
+  
+  .animate-typing-dot-1 {
+    animation: typing-dot 1.4s infinite ease-in-out;
+  }
+  
+  .animate-typing-dot-2 {
+    animation: typing-dot 1.4s infinite ease-in-out;
+    animation-delay: 0.2s;
+  }
+  
+  .animate-typing-dot-3 {
+    animation: typing-dot 1.4s infinite ease-in-out;
+    animation-delay: 0.4s;
   }
 }
