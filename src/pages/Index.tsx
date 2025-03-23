@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChatContainer, MessageProps } from '@/components/Chat';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Code, Menu, Search } from 'lucide-react';
+import { Code, Search, Menu } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { toast } from '@/components/ui/use-toast';
 
 // Generate some dummy users for the group chat
 const users = [
@@ -45,8 +46,8 @@ const users = [
   },
 ];
 
-// Create Telegram-style group chat messages as default messages
-const defaultMessages: MessageProps[] = [
+// Create Telegram-style group chat messages
+const telegramStyleMessages: MessageProps[] = [
   {
     id: '1',
     content: "That's was the screenshot I was sharing on X last night",
@@ -125,46 +126,8 @@ const defaultMessages: MessageProps[] = [
 const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState(users[1]);
-  const [messages, setMessages] = useState<MessageProps[]>([]);
+  const [messages, setMessages] = useState<MessageProps[]>(telegramStyleMessages);
   const currentUser = users[6]; // "You"
-
-  // Load messages from Chrome storage (if available)
-  useEffect(() => {
-    const loadMessages = async () => {
-      // Check if running as Chrome extension
-      if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.local.get('messages', (data) => {
-          if (data.messages && data.messages.length > 0) {
-            // Convert date strings back to Date objects
-            const parsedMessages = data.messages.map((msg: any) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-              replyTo: msg.replyTo ? {
-                ...msg.replyTo,
-                timestamp: msg.replyTo.timestamp ? new Date(msg.replyTo.timestamp) : undefined
-              } : undefined
-            }));
-            setMessages(parsedMessages);
-          } else {
-            // Use default messages if no stored messages
-            setMessages(defaultMessages);
-          }
-        });
-      } else {
-        // When not running as extension, use default messages
-        setMessages(defaultMessages);
-      }
-    };
-
-    loadMessages();
-  }, []);
-
-  // Save messages to Chrome storage when they change
-  useEffect(() => {
-    if (typeof chrome !== 'undefined' && chrome.storage && messages.length > 0) {
-      chrome.storage.local.set({ messages });
-    }
-  }, [messages]);
 
   // Handle new message from user
   const handleSendMessage = (message: string) => {
@@ -226,56 +189,179 @@ const Index = () => {
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
-  const clearMessages = () => {
-    if (confirm('Are you sure you want to clear all messages?')) {
-      setMessages([]);
-      toast({
-        title: "Chat cleared",
-        description: "All messages have been removed",
-      });
-    }
+  const integrationCode = `// Install via npm
+npm install chat-component
+
+// Import in your Next.js component
+import { ChatContainer } from 'chat-component';
+
+// Use in your component
+export default function GroupChat() {
+  const currentUser = {
+    id: 'user-123',
+    username: 'CurrentUser',
+    avatar: '/user-avatar.png'
+  };
+
+  const handleSendMessage = (message) => {
+    // Send message to your backend
+    api.sendMessage(currentUser.id, message);
   };
 
   return (
-    <div className="container mx-auto p-2">
-      <Card className="overflow-hidden border shadow-sm">
-        <CardHeader className="p-3 bg-blue-500/90 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Menu className="w-5 h-5" />
-              <div>
-                <CardTitle className="text-lg font-medium">Crypto Talk</CardTitle>
-                <CardDescription className="text-blue-100 text-xs">
-                  42 members, 12 online
-                </CardDescription>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 text-white hover:bg-blue-600/50"
-                onClick={clearMessages}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-              </Button>
-              <Search className="w-5 h-5" />
-            </div>
+    <ChatContainer
+      initialMessages={messages}
+      currentUser={currentUser}
+      onSendMessage={handleSendMessage}
+      isTyping={isTyping}
+      typingUser="Maria"
+      typingAvatar="/maria-avatar.png"
+      height="600px"
+      placeholder="Message"
+      headerComponent={<GroupChatHeader name="Crypto Talk" members={42} />}
+    />
+  );
+}`;
+
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold tracking-tight mb-3">Telegram-style Group Chat</h1>
+          <p className="text-lg text-muted-foreground">
+            A beautiful, responsive chat component for Next.js applications
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Chat Demo */}
+          <div className="lg:col-span-7">
+            <Card className="overflow-hidden border shadow-sm">
+              <CardHeader className="p-3 bg-blue-500/90 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Menu className="w-5 h-5" />
+                    <div>
+                      <CardTitle className="text-lg font-medium">Crypto Talk</CardTitle>
+                      <CardDescription className="text-blue-100 text-xs">
+                        42 members, 12 online
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Search className="w-5 h-5" />
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <ChatContainer
+                  initialMessages={messages}
+                  currentUser={currentUser}
+                  onSendMessage={handleSendMessage}
+                  isTyping={isTyping}
+                  typingUser={typingUser.username}
+                  typingAvatar={typingUser.avatar}
+                  height="500px"
+                  placeholder="Message"
+                />
+              </CardContent>
+            </Card>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ChatContainer
-            initialMessages={messages}
-            currentUser={currentUser}
-            onSendMessage={handleSendMessage}
-            isTyping={isTyping}
-            typingUser={typingUser.username}
-            typingAvatar={typingUser.avatar}
-            height="500px"
-            placeholder="Message"
-          />
-        </CardContent>
-      </Card>
+
+          {/* Features & Integration */}
+          <div className="lg:col-span-5">
+            <Tabs defaultValue="features" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="features">Features</TabsTrigger>
+                <TabsTrigger value="integration">Integration</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="features">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Telegram-Style Features</CardTitle>
+                    <CardDescription>
+                      What makes this chat component special
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Group Chat Support</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Multiple users with distinct identities and avatars
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Message Replies</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Reply to specific messages in the conversation
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Reactions</h3>
+                      <p className="text-sm text-muted-foreground">
+                        React to messages with emojis
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Typing Indicators</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Shows when other users are typing
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-medium">Date Separators</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Messages are grouped by date
+                      </p>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant="outline" className="w-full">
+                      Learn More
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="integration">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Integration Code</CardTitle>
+                    <CardDescription>
+                      How to use this component in your Next.js app
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative bg-muted rounded-md p-4 overflow-x-auto">
+                      <pre className="text-sm font-mono whitespace-pre text-left">
+                        {integrationCode}
+                      </pre>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="absolute top-2 right-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(integrationCode);
+                        }}
+                      >
+                        <Code className="w-4 h-4 mr-1" />
+                        Copy
+                      </Button>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <Button variant="outline">
+                      View Documentation
+                    </Button>
+                    <Button>
+                      Get Started
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
